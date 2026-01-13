@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::{cmp::max, io::Read};
 
 const INF: i64 = 1_000_000_000_000_000;
 
@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // st_h: 高さの最大値を返す SegmentTree
-    let mut st_h = SegmentTree::new(N, 0usize, std::cmp::max);
+    let mut st_h = SegmentTree::new(N, 0usize, max);
     for i in 0..N {
         st_h.set(i, P[i]);
     }
@@ -29,9 +29,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // dp[x]: 座標xのタワーにいるとき、最大で何点取れるか
     let mut dp = vec![0; N];
     // st_l: {dp[x] - x} の最大値を返す SegmentTree
-    let mut st_l = SegmentTree::new(N, -INF, std::cmp::max);
+    let mut st_l = SegmentTree::new(N, -INF, max);
     // st_r: {dp[x] + x} の最大値を返す SegmentTree
-    let mut st_r = SegmentTree::new(N, -INF, std::cmp::max);
+    let mut st_r = SegmentTree::new(N, -INF, max);
 
     // 低いタワーから順に dp を埋めていく
 
@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // 最大スコアを計算
         let l_max = if l >= x { 0 } else { st_l.prod(l, x) + x as i64 };
         let r_max = if r <= x { 0 } else { st_r.prod(x+1, r+1) - x as i64 };
-        dp[x] = std::cmp::max(l_max, r_max);
+        dp[x] = max(max(l_max, r_max), 0);
         st_l.set(x, dp[x] - x as i64);
         st_r.set(x, dp[x] + x as i64);
         //eprintln!("h={h}, x={x}, l={l}, r={r}, l_max={l_max}, r_max={r_max}, dp={}", dp[x]);
